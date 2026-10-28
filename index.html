@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiftText — memory you control</title>
+<meta name="description" content="SiftText is a local knowledge home for you and your AI agents: plain Markdown, Git history, and nothing saved without your OK.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --ink: #17171a;
+    --muted: #5d5d66;
+    --line: #e6e3dc;
+    --accent: #2f6f4f;
+    --accent-soft: #e5f0ea;
+    --postit: #fff3a8;
+    --code-bg: #f2f0ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121214;
+      --surface: #1b1b1f;
+      --ink: #ecebe8;
+      --muted: #a3a2ab;
+      --line: #2c2c32;
+      --accent: #7fc9a2;
+      --accent-soft: #1d2d25;
+      --postit: #5a5320;
+      --code-bg: #202025;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 Inter, system-ui, -apple-system, sans-serif;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; text-decoration: none; color: var(--ink); }
+  .logo span { color: var(--accent); }
+  nav .links a { margin-left: 22px; text-decoration: none; color: var(--muted); font-size: 15px; }
+  nav .links a:hover { color: var(--ink); }
+
+  header.hero { padding: 64px 0 72px; }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 5px 12px; border-radius: 999px; }
+  h1 { font-size: clamp(38px, 6vw, 64px); line-height: 1.05; letter-spacing: -0.035em; margin: 20px 0 18px; max-width: 14ch; }
+  .lede { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); max-width: 60ch; margin: 0 0 32px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 13px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 16px; }
+  .btn.primary { background: var(--accent); color: var(--bg); }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.025em; line-height: 1.15; margin: 0 0 14px; }
+  .sub { color: var(--muted); max-width: 62ch; margin: 0 0 40px; }
+
+  .compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+  .card h3 { margin: 10px 0 8px; font-size: 19px; letter-spacing: -0.01em; }
+  .card p { margin: 0; color: var(--muted); font-size: 16px; }
+  .icon { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-size: 22px; }
+  .paper .icon { background: var(--code-bg); }
+  .postit .icon { background: var(--postit); }
+  .binder { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .binder .icon { background: var(--accent-soft); }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .feature { padding: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+  .feature .num { font: 500 13px 'JetBrains Mono', monospace; color: var(--accent); }
+  .feature h3 { margin: 6px 0 8px; font-size: 20px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  .flow { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .flow li { counter-increment: step; display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
+  .flow li::before { content: counter(step); flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--bg); font-weight: 700; display: grid; place-items: center; font-size: 15px; }
+  .flow li b { display: block; }
+  .flow li span { color: var(--muted); font-size: 16px; }
+
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px; padding: 20px; overflow-x: auto; font: 14px/1.7 'JetBrains Mono', monospace; margin: 0; }
+  pre .c { color: var(--muted); }
+
+  .quote { font-size: clamp(22px, 3vw, 30px); line-height: 1.35; letter-spacing: -0.015em; max-width: 30ch; margin: 0; }
+
+  footer { padding: 40px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 760px) {
+    .compare, .grid { grid-template-columns: 1fr; }
+    nav .links { display: none; }
+    header.hero { padding: 36px 0 48px; }
+    section { padding: 52px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#">Sift<span>Text</span></a>
+    <div class="links">
+      <a href="#why">Why</a>
+      <a href="#how">How it works</a>
+      <a href="#trees">Tree thinking</a>
+      <a href="#start">Get started</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="eyebrow">Memory for you and your AI</span>
+    <h1>Stop letting AI decide what it remembers.</h1>
+    <p class="lede">SiftText is a local knowledge home for you and your agents. It's plain Markdown files you own, with full Git history, and nothing gets saved or brought back without your OK.</p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Get started</a>
+      <a class="btn ghost" href="#why">See why it's different</a>
+    </div>
+  </header>
+
+  <section id="why">
+    <h2>A binder, not post-it notes.</h2>
+    <p class="sub">Every AI chat is a sheet of paper. There's only so much room, and it gets thrown out when the chat ends. What matters is what you keep and who chooses it.</p>
+    <div class="compare">
+      <div class="card paper">
+        <div class="icon">📄</div>
+        <h3>The paper</h3>
+        <p>The model's context window. It has limited space and resets every chat. Once it fills up, the model loses the thread.</p>
+      </div>
+      <div class="card postit">
+        <div class="icon">🟨</div>
+        <h3>The post-it notes</h3>
+        <p>Automatic memory. The system picks what to write and when to show it. The notes take up space on the page, and you can't see what it chose or why.</p>
+      </div>
+      <div class="card binder">
+        <div class="icon">📒</div>
+        <h3>The binder: SiftText</h3>
+        <p>You save the whole page or just the part that matters, and you name the sections. The model suggests what to file, and you approve it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>Why people switch to SiftText</h2>
+    <p class="sub">It's built on tools developers already trust, and it puts you in charge.</p>
+    <div class="grid">
+      <div class="feature">
+        <div class="num">01</div>
+        <h3>You approve every save</h3>
+        <p>Your agent shows you the exact change it wants to make and waits for your yes. Your memory never changes behind your back.</p>
+      </div>
+      <div class="feature">
+        <div class="num">02</div>
+        <h3>Plain Markdown on your machine</h3>
+        <p>Your knowledge lives in readable files in a folder you control, not in some vendor's hidden database. Open it in any editor.</p>
+      </div>
+      <div class="feature">
+        <div class="num">03</div>
+        <h3>Full Git history</h3>
+        <p>Every approved change is a checked Git commit, so you can see what changed, when, and why, and you can undo it.</p>
+      </div>
+      <div class="feature">
+        <div class="num">04</div>
+        <h3>Works with your agents</h3>
+        <p>Point Claude, Codex or Pi at your knowledge home with a one-line entrance. Your memory goes with you from one tool to the next.</p>
+      </div>
+      <div class="feature">
+        <div class="num">05</div>
+        <h3>Search that finds things</h3>
+        <p>Built-in search covers your whole home, so your agent opens the right page instead of guessing or loading everything.</p>
+      </div>
+      <div class="feature">
+        <div class="num">06</div>
+        <h3>Checks before anything is published</h3>
+        <p>Edits happen in a private worktree and pass checks before they're submitted. A messy draft never ends up in your binder.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="trees">
+    <h2>Brain, Tree, Beam</h2>
+    <p class="sub">Your brain is great at seeing connections but can't write them all down neatly. A language model can go deep on one focused question. SiftText's tree of small, linked pages connects the two.</p>
+    <ol class="flow">
+      <li><div><b>Get it out of your head</b><span>An agent interviews you and pulls the pieces out of your messy thinking.</span></div></li>
+      <li><div><b>One idea per page</b><span>Each piece becomes a page with a clear scope, small enough for you and the model to think about clearly.</span></div></li>
+      <li><div><b>The model goes deep</b><span>It puts all of its attention on that one page.</span></div></li>
+      <li><div><b>You check it</b><span>You confirm the page says what you actually think.</span></div></li>
+      <li><div><b>The tree remembers</b><span>The page sticks around and gets richer over time. The model doesn't have to remember, because the tree does.</span></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <p class="quote">"The language model does not need to remember. The tree remembers."</p>
+  </section>
+
+  <section id="start">
+    <h2>Get started in a few minutes</h2>
+    <p class="sub">Install SiftText, create your knowledge home, and point your agent at it.</p>
+<pre><span class="c"># sign in and activate</span>
+sifttext login
+
+<span class="c"># create your knowledge home</span>
+sifttext init ~/sifttext
+
+<span class="c"># find what you already know</span>
+sifttext search ~/sifttext "onboarding"
+
+<span class="c"># make edits in a private worktree, then submit with checks</span>
+sifttext worktree ~/sifttext</pre>
+  </section>
+
+  <footer>
+    SiftText: local Markdown knowledge, Git history, and search, with you in charge.
+  </footer>
+</div>
+</body>
+</html>
